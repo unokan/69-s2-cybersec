@@ -3,6 +3,9 @@ services:
     image: postgres:16-alpine
     container_name: 69-s2-db
     ports:
-        54321:5432
-
-        
+      - 54321:5432
+    environment:
+      - POSTGRES_PASSWORD={POSTGRES_PASSWORD_USER}
+      - POSTGRES_USER={POSTGRES_PASSWORD_USER}
+      - POSTGRES_DB={YOUR_DB_NAME} 
+      

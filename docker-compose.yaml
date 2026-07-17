@@ -5,9 +5,9 @@ services:
     ports:
       - 54321:5432
     environment:
-      - POSTGRES_PASSWORD=123377Az@
-      - POSTGRES_USER=walid
-      - POSTGRES_DB=walid
+      - POSTGRES_PASSWORD=kanta057
+      - POSTGRES_USER=kanta057
+      - POSTGRES_DB=uno507
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -15,5 +15,5 @@ services:
     ports:
       - 8080:80
     environment:
-      - PGADMIN_DEFAULT_EMAIL=walidteh05@gmail.com
-      - PGADMIN_DEFAULT_PASSWORD=123377Az@
+      - PGADMIN_DEFAULT_EMAIL=Kantapon-v@rmutp.ac.th
+      - PGADMIN_DEFAULT_PASSWORD=Kanta5057-1

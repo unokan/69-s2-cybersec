@@ -5,9 +5,9 @@ services:
     ports:
       - 54321:5432
     environment:
-      - POSTGRES_PASSWORD=REDACTED
-      - POSTGRES_USER=REDACTED
-      - POSTGRES_DB=REDACTED
+      - POSTGRES_PASSWORD={POSTGRES_PASSWORD_USER}
+      - POSTGRES_USER={POSTGRES_PASSWORD_USER}
+      - POSTGRES_DB={YOUR_DB_NAME}
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -15,5 +15,5 @@ services:
     ports:
       - 8080:80
     environment:
-      - PGADMIN_DEFAULT_EMAIL=REDACTED
-      - PGADMIN_DEFAULT_PASSWORD=REDACTED
+      - PGADMIN_DEFAULT_EMAIL={YOUR_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD={PGADMIN_DEFAULT_PASSWORD}

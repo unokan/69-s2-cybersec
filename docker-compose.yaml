@@ -26,3 +26,6 @@ admin:
       environment:
       - PGADMIN_DEFAULT_EMAIL={YOUR_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD={PGADMIN_DEFAULT_PASSWORD}
+
+  volumes:
+  data-postgres

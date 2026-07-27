@@ -5,9 +5,9 @@ services:
     ports:
       - 54321:5432
     environment:
-      - POSTGRES_PASSWORD=kanta057
-      - POSTGRES_USER=kanta057
-      - POSTGRES_DB=uno507
+      - POSTGRES_PASSWORD=$kanta057
+      - POSTGRES_USER=$kanta057
+      - POSTGRES_DB=$uno507
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -24,8 +24,8 @@ admin:
      ports:
       - 8082:80
       environment:
-      - PGADMIN_DEFAULT_EMAIL=Kantapon-v@rmutp.ac.th
-      - PGADMIN_DEFAULT_PASSWORD=Kanta5057-1
+      - PGADMIN_DEFAULT_EMAIL=$Kantapon-v@rmutp.ac.th
+      - PGADMIN_DEFAULT_PASSWORD=$Kanta5057-1
 
   volumes:
   data-postgres

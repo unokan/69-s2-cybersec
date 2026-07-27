@@ -15,8 +15,8 @@ services:
     ports:
       - 8080:80
     environment:
-      - PGADMIN_DEFAULT_EMAIL=Kantapon-v@rmutp.ac.th
-      - PGADMIN_DEFAULT_PASSWORD=Kanta5057-1
+      - PGADMIN_DEFAULT_EMAIL=$Kantapon-v@rmutp.ac.th
+      - PGADMIN_DEFAULT_PASSWORD=$Kanta5057-1
 
 admin:
     image: dpage/pgadmin4:latest

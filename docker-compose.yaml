@@ -11,14 +11,14 @@ services:
 volumes:
       - ./data-postgres:/var/lib/postgresql/data
 
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: 69-s2-pgadmin
-    ports:
-      - 8080:80
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=$Kantapon-v@rmutp.ac.th
-      - PGADMIN_DEFAULT_PASSWORD=$Kanta5057-1
+ # pgadmin:
+ #   image: dpage/pgadmin4:latest
+ #   container_name: 69-s2-pgadmin
+  #  ports:
+  #    - 8080:80
+   # environment:
+    #  - PGADMIN_DEFAULT_EMAIL=$Kantapon-v@rmutp.ac.th
+     # - PGADMIN_DEFAULT_PASSWORD=$Kanta5057-1
 
 admin:
     image: dpage/pgadmin4:latest

@@ -26,3 +26,6 @@ admin:
       environment:
       - PGADMIN_DEFAULT_EMAIL=Kantapon-v@rmutp.ac.th
       - PGADMIN_DEFAULT_PASSWORD=Kanta5057-1
+
+  volumes:
+  data-postgres

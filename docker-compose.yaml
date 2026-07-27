@@ -8,6 +8,8 @@ services:
       - POSTGRES_PASSWORD=$kanta057
       - POSTGRES_USER=$kanta057
       - POSTGRES_DB=$uno507
+volumes:
+      - ./data-postgres:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4:latest

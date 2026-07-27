@@ -8,6 +8,8 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_USER}
       - POSTGRES_USER=${POSTGRES_PASSWORD_USER}
       - POSTGRES_DB=${YOUR_DB_NAME}
+volumes:
+      - ./data-postgres:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4:latest

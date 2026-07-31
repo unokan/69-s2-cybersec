@@ -21,4 +21,4 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=$
 
 volumes:
-  data-postgres
+  data-postgres:

@@ -14,7 +14,7 @@ services:
   admin:
     image: dpage/pgadmin4:latest
     container_name: 69-s2-admin
-     ports:
+    ports:
       - 8082:80
       environment:
       - PGADMIN_DEFAULT_EMAIL=$

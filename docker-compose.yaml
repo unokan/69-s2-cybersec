@@ -21,9 +21,8 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - pgadmin-data:/var/lib/pgadmin
-    user: root # ช่วยป้องกันปัญหา pgadmin เปิดไม่ขึ้นจากเรื่อง Permission
+    user: root 
 
-# แก้ไขตรงนี้: ลบขีดแดชออก และเปลี่ยนเป็นชื่อ Named Volume ของ pgadminแทน
 volumes:
   pgadmin-data:
 

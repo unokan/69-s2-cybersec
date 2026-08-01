@@ -19,6 +19,11 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    user: root # ช่วยป้องกันปัญหา pgadmin เปิดไม่ขึ้นจากเรื่อง Permission
 
+# แก้ไขตรงนี้: ลบขีดแดชออก และเปลี่ยนเป็นชื่อ Named Volume ของ pgadminแทน
 volumes:
-  - data-postgres:
+  pgadmin-data:
+

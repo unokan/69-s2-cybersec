@@ -50,7 +50,7 @@ services:
       - db
 
     networks:
-      - app_network
+      - pg_network
 
 volumes:
   db_data:

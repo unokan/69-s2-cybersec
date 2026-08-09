@@ -34,7 +34,6 @@ services:
   app:
     image: prawee/strapi:latest
     container_name: 69-s2-app
-
     ports:
       - 9092:1337
 

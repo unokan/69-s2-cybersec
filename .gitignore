@@ -1,2 +1,4 @@
 .env
-data-postgres/
+data-postgres
+data-pgadmin
+data-app

@@ -11,9 +11,3 @@ DATABASE_HOST=modified
 DATABASE_PORT=modified
 DATABASE_USERNAME=modified
 DATABASE_PASSWORD=modified
-
-ADMIN_JWT_SECRET=change-this-admin-jwt-secret
-TRANSFER_TOKEN_SALT=change-this-transfer-token-salt
-JWT_SECRET=change-this-jwt-secret
-APP_KEYS=change-this-app-key-1,change-this-app-key-2
-API_TOKEN_SALT=change-this-api-token-salt

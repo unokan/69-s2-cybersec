@@ -47,7 +47,7 @@ services:
       - DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
 
     depends_on:
-      - db
+      - 69-s2-cybersec
 
     networks:
       - app_network

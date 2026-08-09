@@ -1,6 +1,7 @@
 version: '3.8'
 
 name: 69-s2-cybersec
+
 services:
   db:
     image: postgres:16-alpine
@@ -37,24 +38,17 @@ services:
     container_name: 69-s2-app
     ports:
       - 9092:1337
-
     environment:
-      - DATABASE_CLIENT: ${DATABASE_CLIENT}
-      - DATABASE_HOST: ${DATABASE_HOST}
-      - DATABASE_PORT: ${DATABASE_PORT}
-      - DATABASE_NAME: ${POSTGRES_DB}
-      - DATABASE_USERNAME: ${POSTGRES_USER}
-      - DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
-
+      - DATABASE_CLIENT=${DATABASE_CLIENT}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - DATABASE_NAME=${POSTGRES_DB}
+      - DATABASE_USERNAME=${POSTGRES_USER}
+      - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       - db
-
     networks:
-      - app_network
+      - pg-network
 
 volumes:
-  db_data:
-
-networks:
-  app_network:
-    driver: bridge
+  pgadmin-data:

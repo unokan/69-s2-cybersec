@@ -1,5 +1,6 @@
 version: '3.8'
 
+name: 69-s2-cybersec
 services:
   db:
     image: postgres:16-alpine

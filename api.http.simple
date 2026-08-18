@@ -11,5 +11,13 @@ Content-Type: application/json
 }
 
 ## Register
+POST http://localhost:9192/admin/register
+Content-Type: application/json
+
+{
+    "email": "",
+    "password": "",
+    "confirmPassword": ""
+}
 ## Forgot Password
 ## Profile

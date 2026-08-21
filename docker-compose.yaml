@@ -1,10 +1,7 @@
-<<<<<<< HEAD
-=======
 version: '3.8'
 
 name: 69-s2-cybersec
 
->>>>>>> 9cab718745583dbf49a2ebb02857ca3c57e89df8
 services:
   db:
     image: postgres:16-alpine
@@ -30,7 +27,6 @@ services:
       - ./data-pgadmin:/var/lib/pgadmin
 
   app:
-<<<<<<< HEAD
     image: prawee/strapi
     container_name: 69-s2-app
     ports:
@@ -45,23 +41,3 @@ services:
     volumes:
       - ./data-app:/srv/app
   
-=======
-    image: prawee/strapi:latest
-    container_name: 69-s2-app
-    ports:
-      - 9092:1337
-    environment:
-      - DATABASE_CLIENT=${DATABASE_CLIENT}
-      - DATABASE_HOST=${DATABASE_HOST}
-      - DATABASE_PORT=${DATABASE_PORT}
-      - DATABASE_NAME=${POSTGRES_DB}
-      - DATABASE_USERNAME=${POSTGRES_USER}
-      - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
-    depends_on:
-      - db
-    networks:
-      - pg-network
-
-volumes:
-  pgadmin-data:
->>>>>>> 9cab718745583dbf49a2ebb02857ca3c57e89df8

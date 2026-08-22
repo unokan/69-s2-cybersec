@@ -1,33 +1,44 @@
 # REST
 
-## Login
+### Login
 POST http://localhost:9092/admin/login
 Content-Type: application/json
 
 {
     "email": "",
     "password": "",
-    "rememberMe": false
 }
 
-## Register
+### Register
 POST http://localhost:9092/admin/register
 Content-Type: application/json
 
 {
-    "email": "",
-    "password": "",
-    "confirmPassword": ""
+    "registrationToken": "1234",
+    "userInfo": {
+        "email": "",
+        "firstname": "",
+        "lastname": "",
+        "password": ""
+     }
 }
-## Forgot Password
+
+### Forgot Password
 POST http://localhost:9092/admin/forgot-password
 Content-Type: application/json
-
+s
 {
     "email": ""
 }
 
-## Profile
+### Profile
 GET http://localhost:9092/admin/profile
 Authorization: Bearer YOUR_MOCK_TOKEN_HERE
 Content-Type: application/json
+
+{
+    "id": ,
+    "firstname": "",
+    "lastname": "",
+    "email": ""
+}

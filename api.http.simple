@@ -14,7 +14,7 @@ POST http://localhost:9092/admin/register
 Content-Type: application/json
 
 {
-    "registrationToken": "1234",
+    "registrationToken": "",
     "userInfo": {
         "email": "",
         "firstname": "",
@@ -26,7 +26,7 @@ Content-Type: application/json
 ### Forgot Password
 POST http://localhost:9092/admin/forgot-password
 Content-Type: application/json
-s
+
 {
     "email": ""
 }

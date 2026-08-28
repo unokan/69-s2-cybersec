@@ -1,44 +1,78 @@
 # REST
 
-### Login
-POST http://localhost:9092/admin/login
+## 1.Admin
+### 1.1 Register
+POST http://localhost:9092/api/auth/local/register
 Content-Type: application/json
 
 {
+    "username": "",
     "email": "",
+    "password": ""
+}
+
+### 1.2 Login
+POST http://localhost:9092/api/auth/local
+Content-Type: application/json
+
+{
+    "identifier": "",
     "password": "",
+    "rememberMe": false
 }
 
-### Register
-POST http://localhost:9092/admin/register
-Content-Type: application/json
-
-{
-    "registrationToken": "",
-    "userInfo": {
-        "email": "",
-        "firstname": "",
-        "lastname": "",
-        "password": ""
-     }
-}
-
-### Forgot Password
-POST http://localhost:9092/admin/forgot-password
+### 1.3 Forgot Password
+POST http://localhost:9092/api/auth/forgot-password
 Content-Type: application/json
 
 {
     "email": ""
 }
 
-### Profile
-GET http://localhost:9092/admin/profile
-Authorization: Bearer YOUR_MOCK_TOKEN_HERE
+### 1.4 Reset Password
+POST http://localhost:9092/api/auth/reset-password
 Content-Type: application/json
 
 {
-    "id": ,
-    "firstname": "",
-    "lastname": "",
+    "code": "",  
+    "password": "",
+    "passwordConfirmation": ""
+}
+
+### 1.5 Profile
+GET http://localhost:9092/api/users/me
+Authorization: 
+Content-Type: application/json
+
+## 2. User
+### 2.1 Register
+POST http://localhost:9092/api/auth/local/register
+Content-Type: application/json
+
+{
+    "username": "",
+    "email": "",
+    "password": ""
+}
+
+### 2.2 Login
+POST http://localhost:9092/api/auth/local
+Content-Type: application/json
+    
+{
+    "identifier": "",
+    "password": ""
+}
+
+### 2.3 Forgot Password
+POST http://localhost:9092/api/auth/forgot-password
+Content-Type: application/json
+
+{
     "email": ""
 }
+
+### 2.4 Profile
+GET http://localhost:9092/api/users/me
+Authorization:
+Content-Type: application/json

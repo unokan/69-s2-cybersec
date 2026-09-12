@@ -14,4 +14,23 @@ DATABASE_PORT=modified
 DATABASE_USERNAME=modified
 DATABASE_PASSWORD=modified
 
-APP_PORT=modified
+APP_PORT={modified}
+
+# ===== API test data (read by REST Client via {{$dotenv ...}}) =====
+ADMIN_USERNAME={your_admin_username}
+ADMIN_EMAIL={your_admin_email}
+ADMIN_PASSWORD={your_admin_password}
+ADMIN_NEW_PASSWORD={your_new_admin_password}
+ADMIN_FIRSTNAME={your_firstname}
+ADMIN_LASTNAME={your_lastname}
+
+USER_USERNAME={your_username}
+USER_EMAIL={your_email}
+USER_PASSWORD={your_user_password}
+USER_NEW_PASSWORD={your_new_user_password}
+
+# ---- fill these in before using api.http (obtained per session) ----
+ADMIN_RESET_CODE={paste_reset_code}
+ADMIN_JWT_TOKEN={paste_jwt_token}
+USER_RESET_CODE={paste_reset_code}
+USER_JWT_TOKEN={paste_jwt_token}

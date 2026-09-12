@@ -1,75 +1,100 @@
 # REST
+# ใช้กับ VS Code extension "REST Client" (Huachao Mao)
+# credentials ทั้งหมดอ่านจากไฟล์ .env ด้วย {{$dotenv ...}}
+# ขั้นตอน: ส่ง Request แล้วนำ jwt / reset-code จาก response ไปวางใน .env ก่อนส่ง Request ถัดไป
+
+@host = http://localhost:{{$dotenv APP_PORT}}
 
 ## 1. Admin
-### 1.1 Register Admin
-GET http://localhost:9092/admin/init
+### 1.1 Register Admin (รันครั้งเดียว ครั้งแรกที่ไม่มี admin)
+GET {{host}}/admin/init
 Content-Type: application/json
 
 {
-    "username": "",
-    "email": "",
-    "password": "",
-    "firstname": "",
-    "lastname": ""
+    "username": "{{$dotenv ADMIN_USERNAME}}",
+    "email": "{{$dotenv ADMIN_EMAIL}}",
+    "password": "{{$dotenv ADMIN_PASSWORD}}",
+    "firstname": "{{$dotenv ADMIN_FIRSTNAME}}",
+    "lastname": "{{$dotenv ADMIN_LASTNAME}}"
 }
 
 ### 1.2 Login Admin
-GET http://localhost:9092/admin/login
+POST {{host}}/admin/login
 Content-Type: application/json
 
 {
-    "email": "",
-    "password": ""
+    "email": "{{$dotenv ADMIN_EMAIL}}",
+    "password": "{{$dotenv ADMIN_PASSWORD}}"
 }
 
-### 1.3 Forgot Password Admin
-GET http://localhost:9092/admin/forgot-password
+### 1.3 Forgot Password Admin (Step 1: ขอ reset code)
+# ระบบจะส่ง code ไปที่อีเมล -> นำ code ไปใส่ใน .env (ADMIN_RESET_CODE)
+POST {{host}}/admin/forgot-password
 Content-Type: application/json
 
 {
-    "email": ""
+    "email": "{{$dotenv ADMIN_EMAIL}}"
 }
 
+### 1.3.1 Reset Password Admin (Step 2: ใช้ code เปลี่ยนรหัส) [เพิ่มเติม]
+# ต้องกรอก ADMIN_RESET_CODE ใน .env แล้ว ระวัง password != passwordConfirmation จะ error 400
+POST {{host}}/admin/reset-password
+Content-Type: application/json
+
+{
+    "code": "{{$dotenv ADMIN_RESET_CODE}}",
+    "password": "{{$dotenv ADMIN_NEW_PASSWORD}}",
+    "passwordConfirmation": "{{$dotenv ADMIN_NEW_PASSWORD}}"
+}
+
+### 1.4 Profile Admin [เพิ่มเติม]
+# นำ jwt จาก response ของ 1.2 Login ไปใส่ใน .env (ADMIN_JWT_TOKEN)
+GET {{host}}/admin/users/me
+Authorization: Bearer {{$dotenv ADMIN_JWT_TOKEN}}
+Content-Type: application/json
 
 ## 2. User 
 ### 2.1 Register User
-POST http://localhost:9092/api/auth/local/register
+POST {{host}}/api/auth/local/register
 Content-Type: application/json
 
 {
-    "username": "",
-    "email": "",
-    "password": ""
+    "username": "{{$dotenv USER_USERNAME}}",
+    "email": "{{$dotenv USER_EMAIL}}",
+    "password": "{{$dotenv USER_PASSWORD}}"
 }
 
 ### 2.2 Login User
-POST http://localhost:9092/api/auth/local
+POST {{host}}/api/auth/local
 Content-Type: application/json
     
 {
-    "identifier": "",
-    "password": ""
+    "identifier": "{{$dotenv USER_EMAIL}}",
+    "password": "{{$dotenv USER_PASSWORD}}"
 }
 
-### 2.3 Forgot Password User
-POST http://localhost:9092/api/auth/forgot-password
+### 2.3 Forgot Password User (Step 1: ขอ reset code)
+# ระบบจะส่ง code ไปที่อีเมล -> นำ code ไปใส่ใน .env (USER_RESET_CODE)
+POST {{host}}/api/auth/forgot-password
 Content-Type: application/json
 
 {
-    "email": ""
+    "email": "{{$dotenv USER_EMAIL}}"
 }
 
-### 2.4 Reset Password User
-POST http://localhost:9092/api/auth/reset-password
+### 2.4 Reset Password User (Step 2: ใช้ code เปลี่ยนรหัส)
+# ต้องกรอก USER_RESET_CODE ใน .env แล้ว -> เปลี่ยนเป็น USER_NEW_PASSWORD
+POST {{host}}/api/auth/reset-password
 Content-Type: application/json
 
 {
-    "code": "",  
-    "password": "",
-    "passwordConfirmation": ""
+    "code": "{{$dotenv USER_RESET_CODE}}",
+    "password": "{{$dotenv USER_NEW_PASSWORD}}",
+    "passwordConfirmation": "{{$dotenv USER_NEW_PASSWORD}}"
 }
 
 ### 2.5 Profile User
-GET http://localhost:9092/api/users/me
-Authorization:
+# นำ jwt จาก response ของ 2.2 Login ไปใส่ใน .env (USER_JWT_TOKEN)
+GET {{host}}/api/users/me
+Authorization: Bearer {{$dotenv USER_JWT_TOKEN}}
 Content-Type: application/json

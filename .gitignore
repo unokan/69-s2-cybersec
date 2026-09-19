@@ -1,3 +1,28 @@
+# Secret / Env files (ค่าจริง กันไม่ให้หลุดขึ้น repo)
 .env
-data-postgres
+.env.local
+.env.local.*
+.env.bak
+*.env.bak
+secret-backup/
+
+# API test ไฟล์จริง (มี token/reset code) — ไม่ commit
 api.http
+*.api.http
+
+# Rust data dirs (ข้อมูล runtime ภายในเครื่อง)
+data-postgres/
+data-pgadmin/
+data-app/
+secret-backup/
+
+# IDE / System
+.vscode/
+.idea/
+*.log
+.DS_Store
+Thumbs.db
+
+# 🔒 secret backup กันกด add -A พลาด (ไม่อยากให้ขึ้น GitHub)
+.git-sec-backup/
+secret-backup/

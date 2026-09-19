@@ -1,17 +1,65 @@
+# =====================================================================
+# 69-s2-cybersec — TEMPLATE .envsimple (ปลอดภัยสำหรับ commit)
+# placeholder / $dotenv ล้วน — ไม่มีข้อมูลส่วนตัวหรือ secret จริง
+#
+# ตารางสรุปไฟล์ในโปรเจกต์นี้ (ไฟล์ / หน้าที่ / Format / เปลี่ยนแปลงยังไง)
+# | ไฟล์            | หน้าที่                                  | Format                | เปลี่ยนแปลงยังไง                                    |
+# |-----------------|------------------------------------------|-----------------------|------------------------------------------------------|
+# | .env            | template สร้าง env (placeholder ล้วน)    | dotenv ${VAR_NAME}    | value ทั้งหมดเป็น ${VAR_NAME} ไม่มีข้อมูลจริง          |
+# | api.http        | ไฟล์ทดสอบ REST (ใช้งานจริง-ไม่ commit)   | REST Client $dotenv   | ใช้ {{$dotenv VAR}} ลบข้อมูลส่วนตัวในตัวแปร           |
+# | api.http.simple | template ตัวอย่าง REST (commit ได้)       | REST Client $dotenv   | placeholder + {{$dotenv VAR}} ล้วน                    |
+# | .envsimple      | ไฟล์นี้: ตัวอย่าง .env (placeholder)      | dotenv placeholder    | ทุกค่าเป็น {PLACEHOLDER}                              |
+# | .gitignore      | กัน secret/data ไม่ให้หลุด commit         | gitignore rules       | เพิ่ม .env, *.bak, secret-backup/, api.http และ data-  |
+# =====================================================================
+
+# PostgreSQL
 POSTGRES_PASSWORD={YOURPOSTGRES_PASSWORD}
 POSTGRES_USER={YOURPOSTGRES_USER}
 POSTGRES_DB={YOURPOSTGRES_DB}
-POSTGRES_PORT={modified}
+POSTGRES_PORT={YOURPOSTGRES_PORT}
 
+# pgAdmin
 PGADMIN_DEFAULT_EMAIL={YOUREMAIL}
-PGADMIN_DEFAULT_PASSWORD={YOURPASSWORD}
-PGADMIN_DEFAULT_PORT={modified}
+PGADMIN_DEFAULT_PASSWORD={YOURPGADMIN_PASSWORD}
+PGADMIN_DEFAULT_PORT={YOURPGADMIN_PORT}
 
-DATABASE_CLIENT=modified
-DATABASE_NAME=modified
-DATABASE_HOST=modified
-DATABASE_PORT=modified
-DATABASE_USERNAME=modified
-DATABASE_PASSWORD=modified
+# Strapi Database
+DATABASE_CLIENT={DATABASE_CLIENT}
+DATABASE_NAME={DATABASE_NAME}
+DATABASE_HOST={DATABASE_HOST}
+DATABASE_PORT={DATABASE_PORT}
+DATABASE_USERNAME={DATABASE_USERNAME}
+DATABASE_PASSWORD={DATABASE_PASSWORD}
 
-APP_PORT={modified}
+# App DB Role
+APP_DB_USER={APP_DB_USER}
+APP_DB_PASSWORD={APP_DB_PASSWORD}
+
+# Strapi Secrets
+APP_KEYS={APP_KEYS}
+API_TOKEN_SALT={API_TOKEN_SALT}
+ADMIN_JWT_SECRET={ADMIN_JWT_SECRET}
+JWT_SECRET={JWT_SECRET}
+TRANSFER_TOKEN_SALT={TRANSFER_TOKEN_SALT}
+JWT_EXPIRES_IN=2h
+ADMIN_JWT_EXPIRES_IN=2h
+
+# Application Port
+APP_PORT={APP_PORT}
+
+# Admin (ใช้ผ่าน $dotenv ใน api.http)
+ADMIN_EMAIL={YOUREMAIL_ADMIN}
+ADMIN_PASSWORD={YOURPASSWORD_ADMIN}
+ADMIN_FIRSTNAME={YOURFIRSTNAME}
+ADMIN_LASTNAME={YOURLASTNAME}
+
+# User (ใช้ผ่าน $dotenv ใน api.http)
+USER_EMAIL={YOUREMAIL_USER}
+USER_PASSWORD={YOURPASSWORD_USER}
+USER_USERNAME={YOURUSERNAME}
+
+# Tokens — เติมเวลาทดสอบเท่านั้น (ไม่ commit)
+ADMIN_RESET_CODE={NOTOKEN}
+ADMIN_JWT_TOKEN={NOTOKEN}
+USER_RESET_CODE={NOTOKEN}
+USER_JWT_TOKEN={NOTOKEN}

@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "students",
+  "info": {
+    "singularName": "student",
+    "pluralName": "students",
+    "displayName": "Student",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "mobile": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "cardId": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    }
+  }
+}

@@ -39,7 +39,7 @@ services:
 
   app:
     build: ./app
-    image: 69-s2-strapi:local
+    image: 69-s2-strapi:v5
     container_name: 69-s2-app
     ports:
       - 127.0.0.1:9092:1337
@@ -57,5 +57,6 @@ services:
       - TRANSFER_TOKEN_SALT=${TRANSFER_TOKEN_SALT}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
       - ADMIN_JWT_EXPIRES_IN=${ADMIN_JWT_EXPIRES_IN}
+      - DATA_HASH_KEY=${DATA_HASH_KEY}
     volumes:
       - ./data-app:/srv/app

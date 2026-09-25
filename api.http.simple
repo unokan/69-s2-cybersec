@@ -1,11 +1,23 @@
 # REST
+#
+# หมายเหตุ: Strapi v5 (5.37.0) ใช้ documentId ใน REST path เช่น GET /api/students/{documentId}
+# (เลข 1 ด้านล่างเป็นเพียงตัวอย่าง — ใน v5 ต้องแทนด้วย documentId จริง เช่น ydy4zm6paw6doaoagy0fgzu2)
 
 ## Variables
-@admin_email: = {{$dotenv ADMIN_EMAIL}},
-@admin_password: = {{$dotenv ADMIN_PASSWORD}},
+@admin_email = {{$dotenv ADMIN_EMAIL}}
+@admin_password = {{$dotenv ADMIN_PASSWORD}}
+@admin_firstname = {{$dotenv ADMIN_FIRSTNAME}}
+@admin_lastname = {{$dotenv ADMIN_LASTNAME}}
+@admin_reset_code = {{$dotenv ADMIN_RESET_CODE}}
+@admin_new_password = {{$dotenv ADMIN_NEW_PASSWORD}}
+@admin_jwt_token = {{$dotenv ADMIN_JWT_TOKEN}}
 
-@user_email: = {{$dotenv USER_EMAIL}},
-@user_password: = {{$dotenv USER_PASSWORD}},
+@user_email = {{$dotenv USER_EMAIL}}
+@user_password = {{$dotenv USER_PASSWORD}}
+@user_username = {{$dotenv USER_USERNAME}}
+@user_reset_code = {{$dotenv USER_RESET_CODE}}
+@user_new_password = {{$dotenv USER_NEW_PASSWORD}}
+@user_jwt_token = {{$dotenv USER_JWT_TOKEN}}
 
 ## 1. Admin
 ### 1.1 Login (Admin)
@@ -92,3 +104,110 @@ Content-Type: application/json
 GET http://localhost:9092/api/users/me
 Authorization: Bearer {{user_jwt_token}}
 
+## 3. Content
+### 3.1 Student
+#### 3.1.1 List Students
+GET http://localhost:9092/api/students
+Authorization: Bearer {{user_jwt_token}}
+
+#### 3.1.2 List Students with ID
+GET http://localhost:9092/api/students/1
+Authorization: Bearer {{user_jwt_token}}
+
+#### 3.1.3 Create Student
+POST http://localhost:9092/api/students
+Authorization: Bearer {{user_jwt_token}}
+Content-Type: application/json
+
+{
+    "data": {
+        "name": "Student Test 01",
+        "mobile": "0812345678",
+        "cardId": "1103700123456"
+    }
+}
+
+#### 3.1.4 Update Student
+PUT http://localhost:9092/api/students/1
+Authorization: Bearer {{user_jwt_token}}
+Content-Type: application/json
+
+{
+    "data": {
+        "name": "Student Test 01 Updated"
+    }
+}
+
+#### 3.1.5 Delete Student
+DELETE http://localhost:9092/api/students/1
+Authorization: Bearer {{user_jwt_token}}
+
+### 3.2 Teacher
+#### 3.2.1 List Teachers
+GET http://localhost:9092/api/teachers
+Authorization: Bearer {{user_jwt_token}}
+
+#### 3.2.2 List Teachers with ID
+GET http://localhost:9092/api/teachers/1
+Authorization: Bearer {{user_jwt_token}}
+
+#### 3.2.3 Create Teacher
+POST http://localhost:9092/api/teachers
+Authorization: Bearer {{user_jwt_token}}
+Content-Type: application/json
+
+{
+    "data": {
+        "name": "Teacher Test 01"
+    }
+}
+
+#### 3.2.4 Update Teacher
+PUT http://localhost:9092/api/teachers/1
+Authorization: Bearer {{user_jwt_token}}
+Content-Type: application/json
+
+{
+    "data": {
+        "name": "Teacher Test 01 Updated"
+    }
+}
+
+#### 3.2.5 Delete Teacher
+DELETE http://localhost:9092/api/teachers/1
+Authorization: Bearer {{user_jwt_token}}
+
+### 3.3 Subject
+#### 3.3.1 List Subjects
+GET http://localhost:9092/api/subjects
+Authorization: Bearer {{user_jwt_token}}
+
+#### 3.3.2 List Subjects with ID
+GET http://localhost:9092/api/subjects/1
+Authorization: Bearer {{user_jwt_token}}
+
+#### 3.3.3 Create Subject
+POST http://localhost:9092/api/subjects
+Authorization: Bearer {{user_jwt_token}}
+Content-Type: application/json
+
+{
+    "data": {
+        "name": "Subject Test 01"
+    }
+}
+
+#### 3.3.4 Update Subject
+PUT http://localhost:9092/api/subjects/1
+Authorization: Bearer {{user_jwt_token}}
+Content-Type: application/json
+
+{
+    "data": {
+        "name": "Subject Test 01 Updated"
+    }
+}
+
+#### 3.3.5 Delete Subject
+DELETE http://localhost:9092/api/subjects/1
+Authorization: Bearer {{user_jwt_token}}

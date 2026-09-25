@@ -23,6 +23,13 @@ secret-backup/
 .DS_Store
 Thumbs.db
 
+# Node deps / build artifacts
+node_modules/
+app/node_modules/
+app/build/
+app/.tmp/
+app/types/generated/
+
 # 🔒 secret backup กันกด add -A พลาด (ไม่อยากให้ขึ้น GitHub)
 .git-sec-backup/
 secret-backup/

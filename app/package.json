@@ -1,0 +1,27 @@
+{
+  "name": "69-s2-cybersec",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Strapi 5 hardened demo",
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  },
+  "dependencies": {
+    "@strapi/plugin-users-permissions": "5.37.0",
+    "@strapi/strapi": "5.37.0",
+    "bcryptjs": "^2.4.3",
+    "pg": "8.8.0",
+    "zod": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=18.19.0 <=22.x.x",
+    "npm": ">=6.0.0"
+  },
+  "license": "MIT"
+}

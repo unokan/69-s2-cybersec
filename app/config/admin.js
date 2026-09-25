@@ -2,7 +2,7 @@ module.exports = ({ env }) => ({
   auth: {
     secret: env('ADMIN_JWT_SECRET'),
     options: {
-      expiresIn: env('ADMIN_JWT_EXPIRES_IN', '7d'),
+      expiresIn: env('ADMIN_JWT_EXPIRES_IN', '2h'),
     },
   },
   apiToken: {

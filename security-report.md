@@ -21,6 +21,10 @@
 | `app/src/api/student/content-types/student/lifecycles.js` | ปกป้องข้อมูล ปชช. | **HMAC-SHA256** (คีย์ `DATA_HASH_KEY`) ของ `mobile` + `cardId` ครอบ **`beforeCreate` + `beforeUpdate`**, validate ว่าเป็นเลข 10/13 หลักก่อน hash (ผิด → 400) | ✅ ผ่าน (DB เก็บ 64-hex) |
 | `app/src/api/teacher+subject/.../lifecycles.js` | ปกป้อง mass-assignment | allowlist เหลือแค่ `name` — ฟิลด์นอกอนุญาตถูกตัดทิ้ง | ✅ ผ่าน |
 | `.env`, `docker-compose.yaml` | ค่าจริง/รันตัวแปร | เพิ่มคีย์ **`DATA_HASH_KEY`** (ขีดลับของ hash ข้อมูล) เข้า env + container | ✅ ผ่าน |
+| `app/src/middlewares/rate-limit-auth.js` + `config/middlewares.js` | กัน brute-force | ครอบ `/api/auth/*` + `/admin/login|forgot|reset|register-admin` — **max 10/15 นาที/IP → 429** (verify จริง) | ✅ ผ่าน |
+| `app/src/middlewares/password-policy.js` | enforce password policy | register/reset: **≥12 ตัว ครบ Upper/Lower/Digit/Symbol** — รหัสอ่อน → **400** (verify จริง) | ✅ ผ่าน |
+| `app/src/api/*/controllers/*.js` | auto-publish | หลัง create สำเร็จ → publish ทันที → **Public อ่านเห็นเลย** (verify: `publishedAt` โผล่) — ทำงานนอก transaction (เลี่ยง deadlock ของ publish ภายใน lifecycle) | ✅ ผ่าน |
+| `up_permissions` (live DB) | ต่อจากแถวบน | เพิ่มสิทธิ์ `mapping` (Relations teacher↔subject): **Authenticated = CRUD ครบ, Public = find/findOne** | ✅ ผ่าน |
 | `.gitignore` | กัน secret/data/node artifacts หลุด commit | ครอบ `.env`, `api.http`, `data-*`, `secret-backup/`, **เพิ่ม `node_modules/`, `app/build/`, `app/.tmp/`, `app/types/generated/`** | ✅ ผ่าน |
 | — ลบออก | `.env.local.bak`, `secret-backup/` (duplicate ค่าจริง) | ลด secret sprawl เหลือ `.env` ไฟล์เดียว | ✅ ผ่าน |
 | — image สำรอง | `69-s2-strapi:v4-backup` | เก็บ image v4 เดิมก่อน upgrade เผื่อ rollback | ✅ เก็บไว้ |
@@ -34,7 +38,7 @@
 | หมวด IAAA | ผล | ข้อที่แก้/เหลือ | คำอธิบาย |
 |---|---|---|---|
 | **Identification** | ✅ ผ่าน | email identifier ล้วน, ไม่มี 2FA (เอกสารการออกแบบ) | Account enumeration: forgot-password ตอบเหมือนกัน |
-| **Authentication** | ✅ ผ่าน (เหลือ roadmap) | JWT **2h** ทั้งค่า env + fallback code, รหัสทั้งหมด 24 ตัวผสมครบ 4 กลุ่ม, hash bcrypt, **`/admin/login` มี default rate-limit (verify จริง = 429)** | **ระบบยังรับรหัสอ่อนได้** (Strapi ไม่ enforce complexity) + `/api/auth/local`, forgot/reset-password ยังไม่มี rate-limit ให้ตรวจต่อ |
+| **Authentication** | ✅ ผ่าน (เหลือ roadmap) | JWT **2h** ทั้งค่า env + fallback code, รหัสทั้งหมด 24 ตัวผสมครบ 4 กลุ่ม, hash bcrypt, **rate-limit `/api/auth/*` + `/admin/login` (verify 429)**, **password-policy บังคับที่ register/reset (12+ ครบ 4 กลุ่ม, verify 400)** | forgot-password อีเมลจริงยังไม่มี (dev ตั้งได้) — รอ SMTP creds |
 | **Authorization** | ✅ ผ่าน | **ทุก service ผูก `127.0.0.1` แล้ว (verify จาก container จริง)**, DB least-privilege, **RBAC ตั้งสิทธิ์ครบ (Authenticated CRUD, Public อ่านเฉพาะ teacher/subject — student ปิด)**, **input allowlist ตัวจริง (`lifecycles`) + Strapi v5 บล็อก `__proto__` ที่ body-parse (400)**, **อัปเกรด Strapi 4.16.2 → 5.37.0 (CVE-2026-27886 patched)** | ไม่ GRANT ALL; `mobile`/`cardId` ถูก hash **HMAC-SHA256** ก่อนเก็บ (beforeCreate+Update) ครอบสิทธิ์ admin ที่เปิดดู raw เอง |
 | **Accountability** | ⚠️ บางส่วน | DB log connections/disconnections เปิด; `log_statement=ddl` อย่างเดียว → **การ login/เปลี่ยนรหัสไม่ถูก log** | เปิด audit log login/reset เพิ่มใน roadmap |
 
@@ -58,8 +62,8 @@
 | Password Hash | bcrypt (Strapi default) | — | ✅ ผ่าน |
 | **JWT 2h (แก้แล้ว)** | `JWT_EXPIRES_IN` / `ADMIN_JWT_EXPIRES_IN` = **`2h`** ทั้งใน `.env` (ค่าจริง) และ fallback ในโค้ด | HIGH → ✅ | **ยืนยันจาก container จริง (`docker inspect` = `2h`)** + token exp−iat = 7200s |
 | **รหัสแข็งแรง (แก้แล้ว)** | PGADMIN/ADMIN/USER = **24 ตัว ผสมครบ Upper/Lower/Digit/Symbol** (เดิม USER 13 ตัวมี "12345", ADMIN มีคำ dictionary, PGADMIN ฝังชื่อ) | HIGH → ✅ | หมุนรหัสจริงใน live DB ผ่าน Strapi reset-password flow แล้ว login ยืนยันได้ |
-| **← ระบบไม่ enforce password policy** | Strapi (admin + users-permissions) ไม่มี config บังคับความซับซ้อน → ระบบ**ยอมรับ**รหัสอ่อนได้ถ้าสมัครใหม่ | — | ⚠️ นโยบายมีแค่ในเอกสาร/`.env` ยังไม่ถูกตั้งไว้ที่ service |
-| ← Rate-limit (บางส่วน) | **`/admin/login` มี default rate-limit ของ Strapi แล้ว** (ทดสอบจริง: login ซ้ำ → `429 Too Many Requests`) แต่ `/api/auth/local` + forgot/reset-password ยังไม่ได้ตั้ง | — | ⚠️ เพิ่ม rate-limit ให้ content-api path (roadmap) |
+| **Password Policy (บังคับแล้ว)** | ระบบเดิมยอมรับรหัสอ่อน → **ตอนนี้ middleware `password-policy` ตรวจที่ register/reset: ≥12 ตัว + ครบ Upper/Lower/Digit/Symbol** (verify: register รหัส `abc` → **400**) การเปลี่ยนรหัสของสมาชิกเก่าไม่ได้ถูกบังคับ (ต้องเปลี่ยนเอง/รีเซ็ตใหม่) | HIGH → ✅ (ใหม่บางส่วน) | `app/src/middlewares/password-policy.js` |
+| Rate-limit (บังคับแล้ว) | **`/admin/login` มี default rate-limit (verify 429)** + **ตอนนี้มี middleware `rate-limit-auth` ครอบ `/api/auth/*` + `/admin/login|forgot|reset|register-admin`** (verify: ยิง forgot-password ซ้ำ → **429** หลังเกิน max=10/15 นาที/IP) | — → ✅ | `app/src/middlewares/rate-limit-auth.js` |
 | ← forgot-password ส่ง email ไม่ได้ | ตอบ 500 (ยังไม่มี email provider) แต่ token ถูกเก็บ → reset-password ทำงานได้ | LOW | ⚠️ ตั้ง SMTP/email provider ก่อนใช้งานจริง |
 
 ### 3. Authorization — การอนุญาต
@@ -82,7 +86,7 @@
 |---|---|---|---|
 | 3.2.1 **User JWT แยกจาก Admin JWT** | user ใช้ `JWT_SECRET` (`2h`), admin ใช้ `ADMIN_JWT_SECRET` (`2h`) — secret/env คนละตัว, token คนละประเภทใช้แทนกันไม่ได้ | HIGH → ✅ | `app/config/plugins.js` + `app/config/admin.js` |
 | 3.2.2 **salt ของ token แยกกัน** | `API_TOKEN_SALT` / `TRANSFER_TOKEN_SALT` แยกจาก JWT secret — token แต่ละประเภท (api/transfer/user/admin) ไม่ใช้ secret ซ้ำ | — | ✅ ผ่าน |
-| 3.2.3 **RBAC ตั้งสิทธิ์ครบ (แก้แล้ว)** | เข้า `up_permissions` ตั้งสิทธิ์: **Authenticated = CRUD ครบ** (students/teachers/subjects), **Public = อ่าน (`find`/`findOne`) เฉพาะ teacher/subject**, `student` ปิดจาก Public (กัน `mobile`/`cardId` หลุด) | HIGH → ✅ | ทดสอบ API จริง: POST ไร้ token = 403, Public อ่าน student = 403, Authenticated **create 201 / findOne+update 200 / delete 204** |
+| 3.2.3 **RBAC ตั้งสิทธิ์ครบ (แก้แล้ว)** | เข้า `up_permissions` ตั้งสิทธิ์: **Authenticated = CRUD ครบ** (students/teachers/subjects/**mappings**), **Public = อ่าน (`find`/`findOne`) เฉพาะ teacher/subject/mapping**, `student` ปิดจาก Public (กัน `mobile`/`cardId` หลุด) | HIGH → ✅ | ทดสอบ API จริง: POST ไร้ token = 403, Public อ่าน student = 403, Public อ่าน mapping = 200, Authenticated **create 201 / findOne+update 200 / delete 204** |
 | 3.2.4 **JWT อายุสั้น (session จำกัด)** | `JWT_EXPIRES_IN` / `ADMIN_JWT_EXPIRES_IN` = `2h` ทั้งค่า env + fallback ในโค้ด → วัด token จริง exp−iat = 7200s | HIGH → ✅ | `docker inspect` + decode token จริง |
 | 3.2.5 **ไม่มี token hardcode ในไฟล์ทดสอบ** | ไฟล์ REST ใช้ `{{$dotenv}}` ล้วน, ค่าจริงอยู่ใน `.env` (gitignore ครอบ) — ตรวจแล้วไม่พบ secret ใน repo | — | ✅ ผ่าน |
 | 3.2.6 **env/config ไม่รั่วผ่าน API (ตรวจแล้ว)** | `GET /.env` / `/.envsimple` → **404** (ไม่ถูก serve), error response เป็นข้อความกลาง (`Invalid identifier or password`) ไม่ปน path/secret, `.env` ไม่อยู่ใน container (แอปรันจาก `/opt/app`) + gitignore ครอบ | — | ✅ ผ่าน |
@@ -98,7 +102,7 @@
 | 3.3.3 **ตัด `GRANT CREATE` / DDL (ผ่อนให้ชั่วคราวระหว่าง migration)** | เดิม app role สร้าง/แก้/ลบ object ไม่ได้; **ระหว่าง upgrade เป็น v5 ต้องผ่อนให้ `CREATE` บน database/schema + โอน ownership public tables/sequences ให้ `strapi_app`** (เพราะ v5 migration ใช้ `ALTER TABLE ... RENAME` ซึ่งต้องเป็น owner) → post-migration **แนะนำคืนสิทธิ์เป็น least-privilege เดิม** (roadmap) | — → ⚠️ | ตั้งใจผ่อนเพื่องาน migrate เท่านั้น; backup ก่อน upgrade เก็บที่ `data-postgres/backup_pre_v5_20260925.sql` |
 | 3.3.4 **default privileges ครอบคลุม object ใหม่** | `ALTER DEFAULT PRIVILEGES` ให้ `SELECT/INSERT/UPDATE/DELETE` ตาราง + `USAGE/SELECT` บน sequence ให้ object ที่สร้างใหม่โดยอัตโนมัติ ไม่ต้อง GRANT ซ้ำทีละตัว | — | ✅ ผ่าน |
 | 3.3.5 **รหัส DB ไม่ hardcode ในโค้ด** | ค่ามาจาก `${VAR}` ใน `.env` (gitignore ครอบ) ล้วน, template `.envsimple` ใช้ placeholder — ตรวจ git history แล้วไม่มี real secret | — | ✅ ผ่าน |
-| 3.3.6 **ข้อมูลส่วนตัวใน DB (ตรวจแล้ว)** | เดิม: `mobile` hash **MD5** แค่ `beforeCreate`, `cardId` **plaintext**, `beforeUpdate` ไม่ครอบ → **ตอนนี้แก้แล้ว**: `mobile` + `cardId` ถูก hash **HMAC-SHA256 (64-hex)** ด้วยคีย์ลับ `DATA_HASH_KEY` ครอบ **`beforeCreate` + `beforeUpdate`**, เท่ากันเสมอ (deterministic → UNIQUE ยังบังคับได้ — สร้างซ้ำเลขเดิม → 400 duplicate), input ตรวจว่าเป็นเลข 10/13 หลักก่อน hash (ผิด → **400**, test จริง), admin ที่เปิด raw เองเห็นได้แค่ hash | HIGH → ✅ | **หมายเหตุ**: แถวเก่า 2 แถว (Final Verify จากยุคละ 4) ยังเก็บค่า v4 เดิมไว้ (MD5) — ไม่ถูก backfill ใหม่; `DATA_HASH_KEY` เป็นความลับใหม่ที่ต้องเก็บ/หมุนเวียนให้เหมือน secret อื่น |
+| 3.3.6 **ข้อมูลส่วนตัวใน DB (ตรวจแล้ว)** | เดิม: `mobile` hash **MD5** แค่ `beforeCreate`, `cardId` **plaintext**, `beforeUpdate` ไม่ครอบ → **ตอนนี้แก้แล้ว**: `mobile` + `cardId` ถูก hash **HMAC-SHA256 (64-hex)** ด้วยคีย์ลับ `DATA_HASH_KEY` ครอบ **`beforeCreate` + `beforeUpdate`**, เท่ากันเสมอ (deterministic → UNIQUE ยังบังคับได้ — สร้างซ้ำเลขเดิม → 400 duplicate), input ตรวจว่าเป็นเลข 10/13 หลักก่อน hash (ผิด → **400**, test จริง), admin ที่เปิด raw เองเห็นได้แค่ hash | HIGH → ✅ | **ติดตาม legacy แล้ว**: แถวเก่า 2 แถว (Final Verify) ถูก re-hash ทั้ง `card_id` (จาก plaintext → HMAC) และ mobile (จาก MD5 → HMAC ของค่าเดิม) จน format 64-hex เดียวกันทั้งตาราง — ไม่เหลือเลขบัตร plaintext ใน DB แล้ว; `DATA_HASH_KEY` เป็นความลับที่ต้องเก็บ/หมุนเวียน |
 
 ### 4. Accountability — การตรวจสอบย้อนหลัง / Audit
 
@@ -111,8 +115,8 @@
 
 ## 📌 Roadmap (สิ่งที่ยังไม่ทำรอบนี้ — ไม่ใช่ช่องโหว่ที่ค้างโดยไม่รู้)
 
-1. **บังคับ password policy ที่ service** (กำหนด complex rule ใน Strapi admin/users-permissions หรือ validate ก่อนสมัคร/เปลี่ยนรหัส)
-2. **เพิ่ม Rate-limit ให้ `/api/auth/local` + forgot/reset-password** (`/admin/login` มี default ของ Strapi แล้ว — verify 429 ในการทดสอบจริง)
+1. **password-policy: ปรับ fine-tune ต่อ** — บังคับที่ register/reset เรียบร้อย (≥12 + 4 กลุ่ม); ที่เหลือคือ policy สำหรับ **user เดิม** (ต้องเปลี่ยนเอง หรือกำหนด force-change) + tuning ตัวเลขตามความต้องการขององค์กร
+2. **rate-limit: ปรับระดับ/scale** — ครอบ `/api/auth/*` + admin login เรียบร้อย (max 10/15 นาที/IP, in-memory); ถ้า deploy หลาย instance ควรย้ายไป Redis-backed + เลือก max ให้สมดุลกับการใช้งานจริง
 3. **ตั้ง email provider** ให้ forgot-password ทำงานจริง (ปัจจุบันตอบ 500 แต่ flow reset ยังใช้ได้)
 4. **เปิด audit log เหตุการณ์ login + เปลี่ยนรหัส** (ขยาย `log_statement` หรือใช้ปลั๊กอิน extension admin audit)
 5. 2FA สำหรับ admin (เอกสารการออกแบบ หากขยายความรับผิดชอบ)

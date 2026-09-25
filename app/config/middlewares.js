@@ -9,4 +9,12 @@ module.exports = [
   'strapi::session',
   'strapi::favicon',
   'strapi::public',
+  {
+    name: 'global::rate-limit-auth',
+    config: { max: 10 },
+  },
+  {
+    name: 'global::password-policy',
+    config: { minLength: 12 },
+  },
 ];

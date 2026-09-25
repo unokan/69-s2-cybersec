@@ -21,4 +21,15 @@ function sanitizeInput(event, allowedFields) {
   return data;
 }
 
-module.exports = { sanitizeInput, SYSTEM_FIELDS };
+async function publishIfDraft(uid, result) {
+  if (!result || !result.documentId) return;
+  const service = strapi.documents(uid);
+  if (typeof service.publish !== 'function') return;
+  try {
+    await service.publish({ documentId: result.documentId });
+  } catch (err) {
+    strapi.log.warn(`[publishIfDraft] ${uid} ${result.documentId}: ${err.message}`);
+  }
+}
+
+module.exports = { sanitizeInput, publishIfDraft, SYSTEM_FIELDS };

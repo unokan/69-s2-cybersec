@@ -11,17 +11,19 @@
 | `.env` | ค่าจริงสำหรับรัน docker compose (ไม่ commit, gitignore ครอบ) | **JWT 7d → 2h**, รหัสอ่อน (PGADMIN/ADMIN/USER) เปลี่ยนเป็น **รหัส 24 ตัว ผสมครบ 4 กลุ่ม** | ✅ ผ่าน |
 | `app/config/admin.js` | config admin JWT | fallback `7d` → **`2h`** (ถ้า env หาย) | ✅ ผ่าน |
 | `app/config/plugins.js` | config users-permissions JWT | fallback `7d` → **`2h`** (ถ้า env หาย) | ✅ ผ่าน |
-| `.envsimple` | Template ตัวอย่าง commit/แชร์ได้ | JWT `2h`, เพิ่มคีย์ `ADMIN_NEW_PASSWORD` / `USER_NEW_PASSWORD` | ✅ ผ่าน |
-| `api.http.simple` | Template ทดสอบ REST | **แก้ syntax ตัวแปร** `@name: = ... ,` → `@name = {{$dotenv KEY}}` + นิยามครบ 13 ตัวแปร + **เพิ่ม section 3.1–3.3 Content CRUD** (students/teachers/subjects) | ✅ ผ่าน |
+| `.envsimple` | Template ตัวอย่าง commit/แชร์ได้ | JWT `2h`, เพิ่มคีย์ `ADMIN_NEW_PASSWORD` / `USER_NEW_PASSWORD` **+ `DATA_HASH_KEY` placeholder** | ✅ ผ่าน |
+| `api.http.simple` | Template ทดสอบ REST | **แก้ syntax ตัวแปร** `@name: = ... ,` → `@name = {{$dotenv KEY}}` + นิยามครบ 13 ตัวแปร + **เพิ่ม section 3.1–3.3 Content CRUD** (students/teachers/subjects) + **หมายเหตุ `documentId` ของ v5** (REST path ใช้ `documentId` แทน id ตัวเลข) | ✅ ผ่าน |
 | `api.http` | ไฟล์ทดสอบ REST จริง (ไม่ commit) | resync จาก template + **เติม CRUD ทั้ง 3 collection** (เดิมหลายข้อเป็น `???`) | ✅ ผ่าน |
-| `docker-compose.yaml` | กำหนด port/service | (เดิมมี `127.0.0.1` อยู่แล้ว) **recreate จริงแล้วทุก service ผูก `127.0.0.1`** | ✅ ผ่าน |
+| `docker-compose.yaml` | กำหนด port/service | ทุก service ผูก **`127.0.0.1`** (recreate จริงแล้ว), เพิ่ม `DATA_HASH_KEY` ใน env ของ app, **`image: 69-s2-strapi:v5`** (image จริงที่ build ใหม่จาก `./app`) | ✅ ผ่าน |
 | `up_permissions` (live DB) | สิทธิ์ RBAC ของ users-permissions | ตั้งสิทธิ์ **Authenticated = CRUD ครบ** ทั้ง 3 collection, **Public = อ่าน** teacher/subject, `student` ปิดจาก Public (กันเลขบัตร ปชช.) | ✅ ผ่าน (verify จาก API จริง) |
 | `app/package.json`, `app/Dockerfile`, `app/.dockerignore` | Project + image v5 | **อัปเกรด `@strapi/strapi` 4.16.2 → 5.37.0** (ปิด CVE-2026-27886), node:20-alpine, `npm run build`+start | ✅ ผ่าน (รันจริง 5.37.0) |
 | `app/src/utils/fields.js` | filter ฟิลด์ก่อน save | `sanitizeInput(event, allowlist)` — ลบ key ที่ไม่อนุญาตทุก request (ก่อน create/update) | ✅ ผ่าน |
 | `app/src/api/student/content-types/student/lifecycles.js` | ปกป้องข้อมูล ปชช. | **HMAC-SHA256** (คีย์ `DATA_HASH_KEY`) ของ `mobile` + `cardId` ครอบ **`beforeCreate` + `beforeUpdate`**, validate ว่าเป็นเลข 10/13 หลักก่อน hash (ผิด → 400) | ✅ ผ่าน (DB เก็บ 64-hex) |
 | `app/src/api/teacher+subject/.../lifecycles.js` | ปกป้อง mass-assignment | allowlist เหลือแค่ `name` — ฟิลด์นอกอนุญาตถูกตัดทิ้ง | ✅ ผ่าน |
 | `.env`, `docker-compose.yaml` | ค่าจริง/รันตัวแปร | เพิ่มคีย์ **`DATA_HASH_KEY`** (ขีดลับของ hash ข้อมูล) เข้า env + container | ✅ ผ่าน |
+| `.gitignore` | กัน secret/data/node artifacts หลุด commit | ครอบ `.env`, `api.http`, `data-*`, `secret-backup/`, **เพิ่ม `node_modules/`, `app/build/`, `app/.tmp/`, `app/types/generated/`** | ✅ ผ่าน |
 | — ลบออก | `.env.local.bak`, `secret-backup/` (duplicate ค่าจริง) | ลด secret sprawl เหลือ `.env` ไฟล์เดียว | ✅ ผ่าน |
+| — image สำรอง | `69-s2-strapi:v4-backup` | เก็บ image v4 เดิมก่อน upgrade เผื่อ rollback | ✅ เก็บไว้ |
 
 > ตรวจแล้วทั้ง working tree และ git history — **ไม่มี real secret ใน repo** ใช้ placeholder/`{{$dotenv}}` ล้วน
 
@@ -80,7 +82,7 @@
 |---|---|---|---|
 | 3.2.1 **User JWT แยกจาก Admin JWT** | user ใช้ `JWT_SECRET` (`2h`), admin ใช้ `ADMIN_JWT_SECRET` (`2h`) — secret/env คนละตัว, token คนละประเภทใช้แทนกันไม่ได้ | HIGH → ✅ | `app/config/plugins.js` + `app/config/admin.js` |
 | 3.2.2 **salt ของ token แยกกัน** | `API_TOKEN_SALT` / `TRANSFER_TOKEN_SALT` แยกจาก JWT secret — token แต่ละประเภท (api/transfer/user/admin) ไม่ใช้ secret ซ้ำ | — | ✅ ผ่าน |
-| 3.2.3 **RBAC ตั้งสิทธิ์ครบ (แก้แล้ว)** | เข้า `up_permissions` ตั้งสิทธิ์: **Authenticated = CRUD ครบ** (students/teachers/subjects), **Public = อ่าน (`find`/`findOne`) เฉพาะ teacher/subject**, `student` ปิดจาก Public (กัน `mobile`/`cardId` หลุด) | HIGH → ✅ | ทดสอบ API จริง: POST ไร้ token = 403, Public อ่าน student = 403, Authenticated CRUD = 200 ครบ |
+| 3.2.3 **RBAC ตั้งสิทธิ์ครบ (แก้แล้ว)** | เข้า `up_permissions` ตั้งสิทธิ์: **Authenticated = CRUD ครบ** (students/teachers/subjects), **Public = อ่าน (`find`/`findOne`) เฉพาะ teacher/subject**, `student` ปิดจาก Public (กัน `mobile`/`cardId` หลุด) | HIGH → ✅ | ทดสอบ API จริง: POST ไร้ token = 403, Public อ่าน student = 403, Authenticated **create 201 / findOne+update 200 / delete 204** |
 | 3.2.4 **JWT อายุสั้น (session จำกัด)** | `JWT_EXPIRES_IN` / `ADMIN_JWT_EXPIRES_IN` = `2h` ทั้งค่า env + fallback ในโค้ด → วัด token จริง exp−iat = 7200s | HIGH → ✅ | `docker inspect` + decode token จริง |
 | 3.2.5 **ไม่มี token hardcode ในไฟล์ทดสอบ** | ไฟล์ REST ใช้ `{{$dotenv}}` ล้วน, ค่าจริงอยู่ใน `.env` (gitignore ครอบ) — ตรวจแล้วไม่พบ secret ใน repo | — | ✅ ผ่าน |
 | 3.2.6 **env/config ไม่รั่วผ่าน API (ตรวจแล้ว)** | `GET /.env` / `/.envsimple` → **404** (ไม่ถูก serve), error response เป็นข้อความกลาง (`Invalid identifier or password`) ไม่ปน path/secret, `.env` ไม่อยู่ใน container (แอปรันจาก `/opt/app`) + gitignore ครอบ | — | ✅ ผ่าน |
@@ -118,7 +120,7 @@
 7. **คืน DB least-privilege หลัง migration ผ่าน** — `strapi_app` ยังคงได้รับ `CREATE` + ownership public tables/sequences (ผ่อนไว้ให้ v5 migration); ลดเหลือ GRANT เดิม (CONNECT/USAGE/CRUD) + `ALTER DEFAULT PRIVILEGES` ตามเดิม (พร้อม backup/rollback plan ถ้าฝั่งแอปสะดุด)
 8. **พิจารณา hash ที่ช้ากว่า/ไม่ deterministic สำหรับข้อมูล ปชช. เพิ่ม** — HMAC-SHA256 ใช้ได้เพราะ UNIQUE+ค้นหา by-value ยังทำงาน (deterministic) แต่ถ้าอยากกัน brute-force สูงสุด ให้ลอง argon2/แยก salt ต่อ row (จะเสียความสามารถค้นหา/UNIQUE ดั้งเดิม — แลกกัน)
 9. **จัดการ `DATA_HASH_KEY` ตามรอบ secret มาตรฐาน** — หมุนเวียนคีย์ + วางแผนว่าถ้าคีย์รั่ว ต้อง re-hash `mobile`/`cardId` ทั้งตาราง (test key-rotation ก่อน deploy จริง)
-10. **อัปเกรด Strapi จนเป็น 4.16.2 → 5.37.0 เสร็จแล้ว** — คงติดตาม advisory ที่เกี่ยวกับ v5 ต่อเป็นระยะ; ถ้าย้ายขึ้น major ถัดไป ควรอ่าน breaking-change + ตรวจแพ็กเกจ `i18n` (v5 รวมใน core แล้ว ตัว plugin แยกถูกถอดออก)
+10. **ติดตาม advisory ของ Strapi 5 ต่อเนื่อง** — อัปเกรด 4.16.2 → **5.37.0 เรียบร้อย** (รันจริง + เก็บ image `69-s2-strapi:v4-backup`); ถ้าย้ายขึ้น major ถัดไป ควรอ่าน breaking-change + ตรวจแพ็กเกจ `i18n` (v5 รวมใน core แล้ว ตัว plugin แยกถูกถอดออก)
 
 ---
 
